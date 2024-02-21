@@ -1,21 +1,12 @@
-use clap::Parser;
-
-#[derive(Debug, clap::Parser)]
-#[command(author, version, about)]
-struct Arguments {
-    #[arg(
-        num_args(1..),
-        value_name = "filename",
-        value_hint = clap::ValueHint::AnyPath,
-        help = "Path of MSBT file"
-    )]
-    input_path: std::path::PathBuf,
-}
-
 fn main() {
-    let arguments = Arguments::parse();
+    let arguments = std::env::args().collect::<Vec<_>>();
 
-    let input_file = std::fs::File::open(arguments.input_path).expect("Unable to open the input file");
+    if arguments.len() < 2 {
+        panic!("The input file is missing.");
+    }
+
+    let input_file = std::fs::File::open(std::path::PathBuf::from(arguments[1].clone()))
+        .expect(&format!("Unable to open {}", arguments[1]));
 
     let message = msbt::Message::from_file(input_file).expect("Unable to parse message");
 
